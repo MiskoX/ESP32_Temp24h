@@ -73,11 +73,13 @@ const TemperatureChart = () => {
 
   const options = {
     responsive: true,
-    maintainAspectRatio: true, // Ustawienie na true dla zachowania proporcji
+    maintainAspectRatio: true, // Zachowaj proporcje
     aspectRatio: 16 / 9, // Proporcje 16:9
     scales: {
       y: {
-        beginAtZero: true,
+        beginAtZero: false, // Nie zaczynaj od zera
+        min: Math.min(...data) - 2, // Minimalna wartość z marginesem
+        max: Math.max(...data) + 2, // Maksymalna wartość z marginesem
         title: {
           display: true,
           text: "Temperatura (°C)",
@@ -89,6 +91,7 @@ const TemperatureChart = () => {
           font: {
             size: 14, // Rozmiar czcionki dla ticków osi Y
           },
+          stepSize: 0.5, // Krok dla wartości osi Y
         },
       },
       x: {
