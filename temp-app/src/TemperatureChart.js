@@ -10,9 +10,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import "./TemperatureChart.css"; // Importowanie pliku CSS
+import "./TemperatureChart.css";
 
-// Rejestracja komponentów wykresu
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -26,11 +25,11 @@ ChartJS.register(
 const TemperatureChart = () => {
   const [data, setData] = useState([]);
   const [labels, setLabels] = useState([]);
+  const [xRange, setXRange] = useState(10); // Początkowy zakres osi X
 
-  // Funkcja pobierająca dane z API
   const fetchTemperatureData = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/temperature"); // Użyj portu 5000
+      const response = await fetch("http://localhost:5000/api/temperature");
       if (!response.ok) throw new Error("Błąd sieci");
 
       const result = await response.json();
@@ -39,59 +38,62 @@ const TemperatureChart = () => {
         new Date(entry.timestamp).toLocaleTimeString()
       );
 
-      // Aktualizacja danych i etykiet
       setData(temperatureData);
       setLabels(timestamps);
+
+      // Ustawiamy zakres osi X na najbliższą wielokrotność 10
+      const newXRange = Math.ceil(temperatureData.length / 10) * 10;
+      setXRange(newXRange);
     } catch (error) {
       console.error("Błąd pobierania danych:", error);
     }
   };
 
   useEffect(() => {
-    // Pobieranie danych co 5 sekund
     fetchTemperatureData();
     const interval = setInterval(fetchTemperatureData, 5000);
     return () => clearInterval(interval);
   }, []);
 
+  // Przygotowanie danych do wykresu
   const chartData = {
-    labels,
+    labels: [...labels, ...Array(xRange - labels.length).fill("")], // Puste miejsca na osi X
     datasets: [
       {
         label: "Temperatura (°C)",
-        data,
+        data: [...data, ...Array(xRange - data.length).fill(null)], // Uzupełnij brakujące miejsca
         borderColor: "rgba(75, 192, 192, 1)",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         fill: true,
-        pointRadius: 5, // Zwiększony rozmiar punktów
-        pointHoverRadius: 7, // Większy rozmiar przy najechaniu
-        pointBorderColor: "rgba(0, 123, 255, 1)", // Kolor obramowania punktów
-        pointBackgroundColor: "rgba(0, 123, 255, 0.6)", // Wypełnienie punktów
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        pointBorderColor: "rgba(0, 123, 255, 1)",
+        pointBackgroundColor: "rgba(0, 123, 255, 0.6)",
       },
     ],
   };
 
+  // Konfiguracja wykresu
   const options = {
     responsive: true,
-    maintainAspectRatio: true, // Zachowaj proporcje
-    aspectRatio: 16 / 9, // Proporcje 16:9
+    maintainAspectRatio: true,
     scales: {
       y: {
-        beginAtZero: false, // Nie zaczynaj od zera
-        min: Math.min(...data) - 2, // Minimalna wartość z marginesem
-        max: Math.max(...data) + 2, // Maksymalna wartość z marginesem
+        beginAtZero: false,
+        min: Math.min(...data) - 2,
+        max: Math.max(...data) + 2,
         title: {
           display: true,
           text: "Temperatura (°C)",
           font: {
-            size: 16, // Rozmiar czcionki dla tytułu osi Y
+            size: 16,
           },
         },
         ticks: {
           font: {
-            size: 14, // Rozmiar czcionki dla ticków osi Y
+            size: 14,
           },
-          stepSize: 0.5, // Krok dla wartości osi Y
+          stepSize: 0.5,
         },
       },
       x: {
@@ -99,35 +101,35 @@ const TemperatureChart = () => {
           display: true,
           text: "Czas",
           font: {
-            size: 16, // Rozmiar czcionki dla tytułu osi X
+            size: 16,
           },
         },
         ticks: {
           font: {
-            size: 14, // Rozmiar czcionki dla ticków osi X
+            size: 14,
           },
         },
       },
     },
     interaction: {
-      mode: "nearest", // Lepsze przyciąganie do najbliższego punktu
-      axis: "x", // Interakcja działa tylko w osi X
-      intersect: false, // Podpowiedź pojawia się, gdy jest najbliżej
+      mode: "nearest",
+      axis: "x",
+      intersect: false,
     },
     plugins: {
       legend: {
         labels: {
           font: {
-            size: 14, // Rozmiar czcionki dla legendy
+            size: 14,
           },
         },
       },
       tooltip: {
         titleFont: {
-          size: 14, // Rozmiar czcionki dla tytułu podpowiedzi
+          size: 14,
         },
         bodyFont: {
-          size: 12, // Rozmiar czcionki dla treści podpowiedzi
+          size: 12,
         },
       },
     },

@@ -17,6 +17,7 @@ OneWire ds(D2);
 String serverUrl;
 unsigned long displayInterval;
 unsigned long sendInterval;
+float correction; // Zmienna korekcji temperatury
 
 unsigned long lastUpdateDisplay = 0;
 unsigned long lastSendToServer = 0;
@@ -39,10 +40,12 @@ void setup() {
   WiFiManagerParameter custom_server("server", "Endpoint", "http://10.200.200.24:5000/api/temperature", 64);
   WiFiManagerParameter custom_displayInterval("dispInt", "Czas odśw. wyświetlacza (ms)", "5000", 10);
   WiFiManagerParameter custom_sendInterval("sendInt", "Czas wysyłania do serwera (ms)", "60000", 10);
+  WiFiManagerParameter custom_correction("correction", "Korekta temperatury", "0.48", 10); // Pole do korekty
 
   wifiManager.addParameter(&custom_server);
   wifiManager.addParameter(&custom_displayInterval);
   wifiManager.addParameter(&custom_sendInterval);
+  wifiManager.addParameter(&custom_correction);
 
   wifiManager.setAPCallback([](WiFiManager* manager) {
     display.clearDisplay();
@@ -65,6 +68,7 @@ void setup() {
   serverUrl = custom_server.getValue();
   displayInterval = atol(custom_displayInterval.getValue());
   sendInterval = atol(custom_sendInterval.getValue());
+  correction = atof(custom_correction.getValue()); // Pobierz korektę z konfiguracji WiFiManager
 
   display.clearDisplay();
   display.setCursor(0, 0);
@@ -132,7 +136,7 @@ void loop() {
     else if (cfg == 0x40) raw = raw & ~1;
   }
 
-  celsius = (float)raw / 16.0;
+  celsius = (((float)raw / 16.0) + correction);
 
   // Aktualizuj wyświetlacz co displayInterval
   if (millis() - lastUpdateDisplay >= displayInterval) {
