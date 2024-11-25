@@ -13,11 +13,13 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 OneWire ds(D2);
 
-const char* serverUrl = "http://10.200.200.24:5000/api/temperature"; // URL do API
+// Zmienne globalne
+String serverUrl;
+unsigned long displayInterval;
+unsigned long sendInterval;
+
 unsigned long lastUpdateDisplay = 0;
 unsigned long lastSendToServer = 0;
-const unsigned long displayInterval = 5000; // Czas odświeżania wyświetlacza (5 sekund)
-const unsigned long sendInterval = 60000;   // Czas wysyłania do serwera (1 minuta)
 
 void setup() {
   // Inicjalizacja wyświetlacza OLED
@@ -31,8 +33,17 @@ void setup() {
   display.println(F("Konfiguracja WiFi..."));
   display.display();
 
-  // Użycie WiFiManager do konfiguracji WiFi
+  // Konfiguracja parametrów WiFiManager
   WiFiManager wifiManager;
+
+  WiFiManagerParameter custom_server("server", "Endpoint", "http://10.200.200.24:5000/api/temperature", 64);
+  WiFiManagerParameter custom_displayInterval("dispInt", "Czas odśw. wyświetlacza (ms)", "5000", 10);
+  WiFiManagerParameter custom_sendInterval("sendInt", "Czas wysyłania do serwera (ms)", "60000", 10);
+
+  wifiManager.addParameter(&custom_server);
+  wifiManager.addParameter(&custom_displayInterval);
+  wifiManager.addParameter(&custom_sendInterval);
+
   wifiManager.setAPCallback([](WiFiManager* manager) {
     display.clearDisplay();
     display.setCursor(0, 0);
@@ -41,22 +52,25 @@ void setup() {
     display.display();
   });
 
-  // autoConnect wywołuje portal konfiguracji, jeśli nie ma zapisanych danych WiFi lub połączenie się nie powiedzie
   if (!wifiManager.autoConnect("ESP32-Config")) {
     display.clearDisplay();
     display.setCursor(0, 0);
     display.println(F("Blad WiFi"));
     display.display();
     delay(2000);
-    ESP.restart();  // Restart ESP32, jeśli nie udało się połączyć
+    ESP.restart();
   }
 
-  // Pomyślne połączenie z WiFi
+  // Ustawienie wartości na podstawie wprowadzonych parametrów
+  serverUrl = custom_server.getValue();
+  displayInterval = atol(custom_displayInterval.getValue());
+  sendInterval = atol(custom_sendInterval.getValue());
+
   display.clearDisplay();
   display.setCursor(0, 0);
   display.println(F("Polaczono z WiFi"));
   display.display();
-  delay(1000);  // Poczekaj na wyświetlenie wiadomości
+  delay(1000);
 }
 
 void loop() {
@@ -77,11 +91,11 @@ void loop() {
   byte type_s;
   switch (addr[0]) {
     case 0x10:
-      type_s = 1;  // DS18S20
+      type_s = 1;
       break;
     case 0x28:
     case 0x22:
-      type_s = 0;  // DS18B20 i DS1822
+      type_s = 0;
       break;
     default:
       display.clearDisplay();
@@ -94,34 +108,33 @@ void loop() {
 
   ds.reset();
   ds.select(addr);
-  ds.write(0x44, 1);  // Rozpocznij konwersję temperatury
-  delay(750);  // Oczekiwanie na zakończenie konwersji
+  ds.write(0x44, 1);
+  delay(750);
 
   ds.reset();
   ds.select(addr);
-  ds.write(0xBE);  // Odczytaj Scratchpad
+  ds.write(0xBE);
 
   for (int i = 0; i < 9; i++) {
     data[i] = ds.read();
   }
 
   int16_t raw = (data[1] << 8) | data[0];
-  if (type_s) {  // Jeśli DS18S20, dostosuj wartość
-    raw = raw << 3;  // Rozdzielczość 9-bitowa
+  if (type_s) {
+    raw = raw << 3;
     if (data[7] == 0x10) {
       raw = (raw & 0xFFF0) + 12 - data[6];
     }
-  } else {  // Jeśli DS18B20 lub DS1822, sprawdź rozdzielczość
+  } else {
     byte cfg = (data[4] & 0x60);
-    if (cfg == 0x00) raw = raw & ~7;       // 9-bitowa rozdzielczość
-    else if (cfg == 0x20) raw = raw & ~3;  // 10-bitowa
-    else if (cfg == 0x40) raw = raw & ~1;  // 11-bitowa
-    // Standardowo 12-bitowa rozdzielczość
+    if (cfg == 0x00) raw = raw & ~7;
+    else if (cfg == 0x20) raw = raw & ~3;
+    else if (cfg == 0x40) raw = raw & ~1;
   }
 
   celsius = (float)raw / 16.0;
 
-  // Aktualizuj wyświetlacz co 5 sekund
+  // Aktualizuj wyświetlacz co displayInterval
   if (millis() - lastUpdateDisplay >= displayInterval) {
     display.clearDisplay();
     display.setTextSize(1);
@@ -129,17 +142,17 @@ void loop() {
     display.print("Temperatura:");
     display.setCursor(0, 15);
     display.print("Celsjusz: ");
-    display.print(celsius, 2);  // Wyświetl temperaturę z dwoma miejscami po przecinku
+    display.print(celsius, 2);
     display.display();
-    lastUpdateDisplay = millis(); // Zaktualizuj czas ostatniego odświeżenia wyświetlacza
+    lastUpdateDisplay = millis();
   }
 
-  // Wysyłaj temperaturę do API co 1 minutę
+  // Wysyłaj temperaturę do API co sendInterval
   if (millis() - lastSendToServer >= sendInterval && WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
-    http.begin(serverUrl);
+    http.begin(serverUrl.c_str());
     http.addHeader("Content-Type", "application/json");
-    String jsonPayload = "{\"temperature\":" + String(celsius, 2) + "}"; // Wysyłanie z dwoma miejscami po przecinku
+    String jsonPayload = "{\"temperature\":" + String(celsius, 2) + "}";
     int httpResponseCode = http.POST(jsonPayload);
 
     display.setCursor(0, 30);
@@ -152,6 +165,6 @@ void loop() {
     display.display();
     http.end();
 
-    lastSendToServer = millis(); // Zaktualizuj czas ostatniego wysłania danych do serwera
+    lastSendToServer = millis();
   }
 }
