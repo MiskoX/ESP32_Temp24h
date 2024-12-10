@@ -1,11 +1,11 @@
-import React from 'react';
-import './App.css';
-import TemperatureChart from './TemperatureChart';
+import React from "react";
+import "./App.css";
+import TemperatureChart from "./components/TemperatureChart";
 
 function App() {
   return (
     <div className="App">
-        <TemperatureChart />
+      <TemperatureChart />
     </div>
   );
 }
