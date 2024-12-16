@@ -10,7 +10,7 @@ import {
   ReferenceLine,
   ResponsiveContainer,
 } from "recharts";
-import "./Chart.css"; // Importujemy plik CSS
+import "./Chart.css";
 
 const MeasurementChart = () => {
   const [data, setData] = useState([]);
@@ -34,25 +34,24 @@ const MeasurementChart = () => {
   }, [fetchIntervalId]);
 
   useEffect(() => {
-    // If the measurement is running, update the elapsed time every second
-    let timerInterval;
-    if (isRunning) {
-      timerInterval = setInterval(() => {
+    // Update the elapsed time every second
+    const timerInterval = setInterval(() => {
+      if (isRunning) {
         setElapsedTime((prevTime) => prevTime + 1);
-      }, 1000); // Update every second
-    } else {
-      clearInterval(timerInterval); // Clear timer when not running
-    }
+      }
+    }, 1000);
 
     return () => clearInterval(timerInterval); // Cleanup interval on unmount
   }, [isRunning]);
 
-  const fetchData = async (startTime) => {
+  const fetchData = async () => {
+    if (!startTimestamp) return; // Ensure startTimestamp is set
+
     try {
       const now = new Date().toISOString();
+      const url = `http://localhost:5000/api/temperature?start=${startTimestamp}&end=${now}`;
 
-      // Używamy przekazanego startTime zamiast stanu
-      const url = `http://localhost:5000/api/temperature?start=${startTime}&end=${now}`;
+      console.log("Fetching data from URL:", url); // Log the fetch URL
 
       const response = await fetch(url);
       if (!response.ok) {
@@ -62,6 +61,8 @@ const MeasurementChart = () => {
         return;
       }
 
+      console.log("Response received successfully"); // Log successful response
+
       const result = await response.json();
 
       if (!result || result.length === 0) {
@@ -69,10 +70,14 @@ const MeasurementChart = () => {
         return;
       }
 
+      console.log("Raw data received:", result); // Log raw data
+
       const formattedData = result.map((entry) => ({
         timestamp: new Date(entry.timestamp).getTime(),
         temperature: entry.temperature,
       }));
+
+      console.log("Formatted data:", formattedData); // Log formatted data
 
       setData((prevData) => {
         const newData = [...prevData, ...formattedData].filter(
@@ -84,6 +89,8 @@ const MeasurementChart = () => {
                 t.temperature === value.temperature
             )
         );
+
+        console.log("Merged data:", newData); // Log merged data
 
         updateTemperatureStats(newData.map((d) => d.temperature));
         return newData;
@@ -107,7 +114,11 @@ const MeasurementChart = () => {
   const startMeasurement = () => {
     if (isRunning) return;
 
+    const startTime = new Date().toISOString(); // Pobierz czas startu
+    setStartTimestamp(startTime); // Ustaw stan startTimestamp
+
     setIsRunning(true);
+    setElapsedTime(0); // Reset elapsed time
     setData([]);
     setStats({
       average: null,
@@ -115,17 +126,17 @@ const MeasurementChart = () => {
       min: null,
     });
 
-    const startTime = new Date().toISOString(); // Pobierz czas startu
-    setStartTimestamp(startTime); // Ustaw stan startTimestamp
+    fetchData(); // Wywołaj pierwszy fetch
 
-    fetchData(startTime); // Przekazujemy startTime do fetchData
-    const intervalId = setInterval(() => fetchData(startTime), 30000); // Wywołanie co 30 sekund
+    const intervalId = setInterval(fetchData, 1000); // Aktualizacja co 30 sekund
     setFetchIntervalId(intervalId);
   };
 
   const stopMeasurement = () => {
     clearInterval(fetchIntervalId);
+    setFetchIntervalId(null);
     setIsRunning(false);
+    setElapsedTime(0); // Clear elapsed time
   };
 
   const handleDurationChange = (e) => {
@@ -189,8 +200,7 @@ const MeasurementChart = () => {
       </div>
 
       <div style={{ marginBottom: "20px" }}>
-        <p>Elapsed time: {formatElapsedTime(elapsedTime)}</p>{" "}
-        {/* Display elapsed time */}
+        <p>Elapsed time: {formatElapsedTime(elapsedTime)}</p>
       </div>
 
       <ResponsiveContainer width="100%" height={400}>
@@ -227,8 +237,8 @@ const MeasurementChart = () => {
           <Line
             type="monotone"
             dataKey="temperature"
-            stroke="#800080" // Kolor fioletowy
-            strokeWidth={3} // Pogrubienie linii
+            stroke="#800080"
+            strokeWidth={3}
           />
           {stats.max !== null && (
             <ReferenceLine

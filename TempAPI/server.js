@@ -29,8 +29,8 @@ const insertRandomTemperature = () => {
 };
 
 // //Harmonogram: co 5 minut
-// const INTERVAL = 0.1 * 60 * 1000; // 5 minut w milisekundach
-// setInterval(insertRandomTemperature, INTERVAL);
+const INTERVAL = 0.1 * 60 * 1000; // 5 minut w milisekundach
+setInterval(insertRandomTemperature, INTERVAL);
 
 // Start server
 const PORT = 5000;
