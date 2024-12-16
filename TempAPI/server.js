@@ -12,26 +12,25 @@ app.use(express.json());
 // Routes
 app.use("/api/temperature", tempRoutes);
 
-//Funkcja do dodawania losowej temperatury
-const insertRandomTemperature = () => {
-  const randomTemperature = (Math.random() * 50).toFixed(2); // Losowa temperatura 0-50 z 2 miejscami po przecinku
-  const query =
-    "INSERT INTO temperature_logs (temperature, timestamp) VALUES (?, NOW())";
+// const insertRandomTemperature = () => {
+//   const randomTemperature = (Math.random() * 50).toFixed(2);
+//   const query =
+//     "INSERT INTO temperature_logs (temperature, timestamp) VALUES (?, NOW())";
 
-  db.query(query, [randomTemperature], (err) => {
-    if (err) {
-      console.error("Błąd podczas dodawania losowej temperatury:", err);
-      return;
-    }
-    console.log(
-      `Dodano losową temperaturę: ${randomTemperature}°C o ${new Date().toISOString()}`
-    );
-  });
-};
+//   db.query(query, [randomTemperature], (err) => {
+//     if (err) {
+//       console.error("Błąd podczas dodawania losowej temperatury:", err);
+//       return;
+//     }
+//     console.log(
+//       `Dodano losową temperaturę: ${randomTemperature}°C o ${new Date().toISOString()}`
+//     );
+//   });
+// };
 
-//Harmonogram: co 5 minut
-const INTERVAL = 0.1 * 60 * 1000; // 5 minut w milisekundach
-setInterval(insertRandomTemperature, INTERVAL);
+// //Harmonogram: co 5 minut
+// const INTERVAL = 0.1 * 60 * 1000; // 5 minut w milisekundach
+// setInterval(insertRandomTemperature, INTERVAL);
 
 // Start server
 const PORT = 5000;
