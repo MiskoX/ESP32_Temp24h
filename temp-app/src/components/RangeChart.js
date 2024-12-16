@@ -88,7 +88,7 @@ const RangeChart = () => {
 
   return (
     <div className="chart-container">
-      <h2>Wykres (Zakres 1/3/6/12/24 godziny)</h2>
+      <h2>Wykres wstecz(1/3/6/12/24 godziny)</h2>
 
       <div className="range-selector">
         <label>

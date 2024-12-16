@@ -182,14 +182,10 @@ const MeasurementChart = () => {
 
       <div className="statistics">
         {stats.average !== null && (
-          <p>Average temperature: {stats.average.toFixed(2)}°C</p>
+          <p>Średnia temperatura: {stats.average.toFixed(2)}°C</p>
         )}
-        {stats.max !== null && (
-          <p>Maximum temperature: {stats.max.toFixed(2)}°C</p>
-        )}
-        {stats.min !== null && (
-          <p>Minimum temperature: {stats.min.toFixed(2)}°C</p>
-        )}
+        {stats.max !== null && <p>Max temperatura: {stats.max.toFixed(2)}°C</p>}
+        {stats.min !== null && <p>Min temperatura: {stats.min.toFixed(2)}°C</p>}
       </div>
 
       <div style={{ marginBottom: "20px" }}>

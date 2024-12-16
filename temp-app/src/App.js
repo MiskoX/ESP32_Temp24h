@@ -12,7 +12,7 @@ const App = () => {
         <nav>
           <ul>
             <li>
-              <Link to="/range">Zakres 6/12/24 godziny</Link>
+              <Link to="/range">Zakres wstecz</Link>
             </li>
             <li>
               <Link to="/custom">Zakres niestandardowy</Link>

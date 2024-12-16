@@ -43,6 +43,13 @@ const CustomRangeChart = () => {
       );
       const result = await response.json();
 
+      // Sprawdzamy, czy dane są puste
+      if (result.length === 0) {
+        setErrorMessage("Brak danych w wybranym zakresie czasowym.");
+        setShowErrorModal(true);
+        return;
+      }
+
       const formattedData = result.map((entry) => ({
         timestamp: new Date(entry.timestamp).getTime(),
         temperature: entry.temperature,
@@ -136,14 +143,10 @@ const CustomRangeChart = () => {
       </div>
       <div className="statistics">
         {stats.average !== null && (
-          <p>Average temperature: {stats.average.toFixed(2)}°C</p>
+          <p>Średnia temperatura: {stats.average.toFixed(2)}°C</p>
         )}
-        {stats.max !== null && (
-          <p>Maximum temperature: {stats.max.toFixed(2)}°C</p>
-        )}
-        {stats.min !== null && (
-          <p>Minimum temperature: {stats.min.toFixed(2)}°C</p>
-        )}
+        {stats.max !== null && <p>Max temperatura: {stats.max.toFixed(2)}°C</p>}
+        {stats.min !== null && <p>Min temperatura: {stats.min.toFixed(2)}°C</p>}
       </div>
 
       {/* Modal do wyświetlania błędów */}
