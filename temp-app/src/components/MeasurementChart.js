@@ -48,8 +48,13 @@ const MeasurementChart = () => {
     if (!startTimestamp) return; // Ensure startTimestamp is set
 
     try {
-      const now = new Date().toISOString();
-      const url = `http://localhost:5000/api/temperature?start=${startTimestamp}&end=${now}`;
+      const now = new Date();
+      const adjustedNow = new Date(now.getTime() + 3600000); // Dodanie +1h (3600000 ms)
+      const adjustedStart = new Date(
+        new Date(startTimestamp).getTime() + 3600000
+      ); // Dodanie +1h do startTimestamp
+
+      const url = `http://localhost:5000/api/temperature?start=${adjustedStart.toISOString()}&end=${adjustedNow.toISOString()}`;
 
       console.log("Fetching data from URL:", url); // Log the fetch URL
 
