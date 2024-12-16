@@ -12,7 +12,7 @@ app.use(express.json());
 // Routes
 app.use("/api/temperature", tempRoutes);
 
-// Funkcja do dodawania losowej temperatury
+//Funkcja do dodawania losowej temperatury
 const insertRandomTemperature = () => {
   const randomTemperature = (Math.random() * 50).toFixed(2); // Losowa temperatura 0-50 z 2 miejscami po przecinku
   const query =
@@ -29,8 +29,8 @@ const insertRandomTemperature = () => {
   });
 };
 
-// Harmonogram: co 5 minut
-const INTERVAL = 5 * 60 * 1000; // 5 minut w milisekundach
+//Harmonogram: co 5 minut
+const INTERVAL = 0.1 * 60 * 1000; // 5 minut w milisekundach
 setInterval(insertRandomTemperature, INTERVAL);
 
 // Start server

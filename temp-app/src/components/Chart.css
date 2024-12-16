@@ -1,0 +1,124 @@
+/* Stylizacja ogólna dla kontenera wykresu */
+.chart-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 70%;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  text-align: center;
+  /* overflow: hidden; Ukryj elementy wychodzące poza kontener */
+}
+
+h2 {
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Stylizacja formularza z datami i zakresami */
+.range-selector,
+.date-range {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.range-selector label,
+.date-range label {
+  font-size: 14px;
+  color: #555;
+}
+
+.range-selector select,
+.date-range input,
+.date-range button {
+  padding: 5px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Stylizacja przycisku zatwierdzenia zakresu i pobierania danych */
+.range-selector button,
+.date-range button {
+  padding: 10px 15px;
+  background-color: #9a66ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.range-selector button:hover,
+.date-range button:hover {
+  background-color: #7a47d1;
+}
+
+/* Wyświetlanie statystyk nad wykresem */
+.statistics {
+  display: flex;
+  text-align: center;
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.statistics p {
+  margin: 0 10px;
+}
+
+/* Stylizacja wykresu */
+.recharts-surface {
+  background-color: #fff;
+  border-radius: 8px;
+}
+
+/* Stylizacja dla modalnego okna błędów */
+.modal {
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  text-align: center;
+  position: relative;
+}
+
+.modal .close {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  top: 10px;
+  right: 10px;
+  padding: 5px;
+  background-color: #9a66ff;
+  color: white;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal .close:hover {
+  background-color: #7a47d1;
+}

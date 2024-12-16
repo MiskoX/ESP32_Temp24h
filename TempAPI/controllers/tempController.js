@@ -25,27 +25,36 @@ const tempController = {
   getTemperatures: (req, res) => {
     const { hoursBack, start, end } = req.query;
 
-    // Parametry walidacji
-    if (hoursBack && !["6", "12", "24"].includes(hoursBack)) {
-      return res
-        .status(400)
-        .json({ error: "Nieprawidłowy parametr 'hoursBack'" });
+    // Walidacja 'hoursBack'
+    if (hoursBack && (isNaN(hoursBack) || hoursBack <= 0 || hoursBack > 24)) {
+      return res.status(400).json({
+        error: "Parametr 'hoursBack' powinien być liczbą od 1 do 24.",
+      });
     }
 
-    // Walidacja start i end
+    // Walidacja 'start' i 'end'
     if ((start && !end) || (end && !start)) {
-      return res
-        .status(400)
-        .json({ error: "Obydwa parametry 'start' i 'end' są wymagane" });
+      return res.status(400).json({
+        error: "Oba parametry 'start' i 'end' muszą być obecne.",
+      });
+    }
+
+    if (
+      (start && isNaN(Date.parse(start))) ||
+      (end && isNaN(Date.parse(end)))
+    ) {
+      return res.status(400).json({
+        error: "Parametry 'start' i 'end' muszą być w formacie ISO.",
+      });
     }
 
     // Pobieranie danych z bazy
     Temperature.getTemperatures(hoursBack, start, end, (err, results) => {
       if (err) {
         console.error("Błąd podczas pobierania temperatur:", err);
-        res.status(500).json({ error: "Błąd serwera" });
-        return;
+        return res.status(500).json({ error: "Błąd serwera" });
       }
+
       res.status(200).json(results);
     });
   },

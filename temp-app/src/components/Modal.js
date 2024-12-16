@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import "./Modal.css"; // Stwórz odpowiedni plik CSS dla stylów modala
+import "./Modal.css"; // Plik CSS do stylów modala
 
 const Modal = ({ isOpen, onClose, children }) => {
   useEffect(() => {
@@ -12,7 +12,7 @@ const Modal = ({ isOpen, onClose, children }) => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen) return null; // Modal nie jest wyświetlany, jeśli isOpen jest fałszywe
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -20,7 +20,7 @@ const Modal = ({ isOpen, onClose, children }) => {
         <button className="close-button" onClick={onClose}>
           &times;
         </button>
-        {children}
+        {children} {/* Wyświetlenie komunikatu błędu */}
       </div>
     </div>
   );

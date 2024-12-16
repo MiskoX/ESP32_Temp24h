@@ -23,8 +23,6 @@ const Temperature = {
     if (start && end) {
       query += " AND timestamp BETWEEN ? AND ?";
       params.push(start, end);
-    } else if (start || end) {
-      return callback("Obydwa parametry 'start' i 'end' są wymagane", null);
     }
 
     query += " ORDER BY timestamp ASC";
