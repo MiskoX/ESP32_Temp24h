@@ -9,8 +9,8 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
-import Modal from "./Modal"; // Importujemy modal do wyświetlania błędów
-import "./Chart.css"; // Importujemy wspólne style CSS
+import Modal from "./Modal";
+import "./Chart.css";
 
 const RangeChart = () => {
   const [data, setData] = useState([]);
@@ -31,11 +31,9 @@ const RangeChart = () => {
     const min = Math.min(...temperatures);
     const average =
       temperatures.reduce((sum, temp) => sum + temp, 0) / temperatures.length;
-    // Update the stats state after calculating
     setStats({ max, min, average });
   };
 
-  // Call calculateStats to update the stats when the data changes
   useEffect(() => {
     calculateStats(data);
   }, [data]);
@@ -48,18 +46,14 @@ const RangeChart = () => {
       const result = await response.json();
 
       const temperatureData = result.map((entry) => entry.temperature);
-      const timestamps = result.map((entry) =>
-        new Date(entry.timestamp).toLocaleString("pl-PL", {
-          weekday: "short", // Show weekday (e.g., Monday)
-          hour: "2-digit",
-          minute: "2-digit",
-        })
+      const timestamps = result.map(
+        (entry) => new Date(entry.timestamp) // Convert to Date object for proper time handling
       );
 
       setData(
         temperatureData.map((temperature, index) => ({
           temperature,
-          timestamp: timestamps[index],
+          timestamp: timestamps[index].getTime(), // Use timestamp (milliseconds)
         }))
       );
     } catch (error) {
@@ -120,7 +114,20 @@ const RangeChart = () => {
       <ResponsiveContainer width="100%" height={400}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="timestamp" />
+          <XAxis
+            dataKey="timestamp"
+            type="number"
+            domain={["dataMin", "dataMax"]} // Dynamically adjust the X axis domain to fit the data
+            padding={{ left: 0, right: 0 }}
+            tickFormatter={(timestamp) => {
+              const date = new Date(timestamp);
+              return date.toLocaleString("pl-PL", {
+                weekday: "short", // Show weekday (e.g., Monday)
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+            }}
+          />
           <YAxis domain={[0, 50]} />
           <Tooltip />
           <Line
