@@ -29,6 +29,7 @@ const RangeChart = () => {
       const temperatureData = result.map((entry) => entry.temperature);
       const timestamps = result.map((entry) =>
         new Date(entry.timestamp).toLocaleString("pl-PL", {
+          weekday: "short", // Pokazuje dzień tygodnia (np. poniedziałek)
           hour: "2-digit",
           minute: "2-digit",
         })
@@ -64,6 +65,18 @@ const RangeChart = () => {
 
   const closeModal = () => setIsModalOpen(false);
 
+  // Obliczanie min, max, średniej
+  const calculateMinMaxAvg = (data) => {
+    const temperatures = data.map((entry) => entry.temperature);
+    const minTemp = Math.min(...temperatures);
+    const maxTemp = Math.max(...temperatures);
+    const avgTemp =
+      temperatures.reduce((acc, temp) => acc + temp, 0) / temperatures.length;
+    return { minTemp, maxTemp, avgTemp };
+  };
+
+  const { minTemp, maxTemp, avgTemp } = calculateMinMaxAvg(data);
+
   return (
     <div className="chart-container">
       <h2>Wykres (Zakres 6/12/24 godziny)</h2>
@@ -97,6 +110,13 @@ const RangeChart = () => {
         </div>
 
         <button onClick={handleFetch}>Pobierz dane</button>
+      </div>
+
+      {/* Wyświetlanie wartości min, max, średnia nad wykresem */}
+      <div className="statistics">
+        <p>Średnia: {avgTemp.toFixed(2)}°C</p>
+        <p>Minimum: {minTemp}°C</p>
+        <p>Maksimum: {maxTemp}°C</p>
       </div>
 
       <ResponsiveContainer width="100%" height={400}>

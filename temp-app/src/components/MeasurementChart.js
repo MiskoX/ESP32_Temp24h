@@ -231,9 +231,8 @@ const MeasurementChart = () => {
           <Line
             type="monotone"
             dataKey="temperature"
-            stroke="#4BC0C0"
-            activeDot={{ r: 8 }}
-            isAnimationActive={false}
+            stroke="#800080" // Kolor fioletowy
+            strokeWidth={3} // Pogrubienie linii
           />
           {stats.max !== null && (
             <ReferenceLine
