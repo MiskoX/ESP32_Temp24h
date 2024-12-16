@@ -116,11 +116,19 @@ const MeasurementChart = () => {
     });
   };
 
+  const [endTimestamp, setEndTimestamp] = useState(null); // Dodaj endTimestamp
+
   const startMeasurement = () => {
     if (isRunning) return;
 
     const startTime = new Date().toISOString(); // Pobierz czas startu
     setStartTimestamp(startTime); // Ustaw stan startTimestamp
+
+    // Oblicz endTimestamp na podstawie startu i duration
+    const endTime = new Date(
+      new Date(startTime).getTime() + duration * 3600000
+    ).toISOString();
+    setEndTimestamp(endTime); // Ustaw endTimestamp
 
     setIsRunning(true);
     setElapsedTime(0); // Reset elapsed time
@@ -133,7 +141,7 @@ const MeasurementChart = () => {
 
     fetchData(); // Wywołaj pierwszy fetch
 
-    const intervalId = setInterval(fetchData, 1000); // Aktualizacja co 30 sekund
+    const intervalId = setInterval(fetchData, 1000); // Aktualizacja co sekundę
     setFetchIntervalId(intervalId);
   };
 
@@ -142,6 +150,7 @@ const MeasurementChart = () => {
     setFetchIntervalId(null);
     setIsRunning(false);
     setElapsedTime(0); // Clear elapsed time
+    setEndTimestamp(null); // Reset endTimestamp
   };
 
   const handleDurationChange = (e) => {
@@ -214,7 +223,10 @@ const MeasurementChart = () => {
           <XAxis
             dataKey="timestamp"
             type="number"
-            domain={["auto", "auto"]}
+            domain={[
+              startTimestamp ? new Date(startTimestamp).getTime() : "auto",
+              endTimestamp ? new Date(endTimestamp).getTime() : "auto",
+            ]}
             tickFormatter={(unixTime) => {
               const date = new Date(unixTime);
               return `${date.getHours()}:${String(date.getMinutes()).padStart(
@@ -224,6 +236,7 @@ const MeasurementChart = () => {
             }}
             scale="time"
           />
+
           <YAxis
             domain={[0, 50]}
             label={{
