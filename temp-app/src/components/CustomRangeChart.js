@@ -167,7 +167,8 @@ const CustomRangeChart = () => {
           <XAxis
             dataKey="timestamp"
             type="number"
-            domain={["auto", "auto"]}
+            domain={["dataMin", "dataMax"]} // Dynamically adjust the X axis domain to fit the data
+            padding={{ left: 0, right: 0 }}
             scale="time"
             tickFormatter={formatDate} // Używamy funkcji formatDate, by wyświetlić datę i godzinę
           />

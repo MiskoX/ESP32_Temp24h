@@ -80,6 +80,17 @@ const RangeChart = () => {
 
   const closeModal = () => setIsModalOpen(false);
 
+  // Funkcja do formatowania daty
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // +1 ponieważ miesiące w JS zaczynają się od 0
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+  };
+
   return (
     <div className="chart-container">
       <h2>Wykres wstecz(1/3/6/12/24 godziny)</h2>
@@ -119,17 +130,14 @@ const RangeChart = () => {
             type="number"
             domain={["dataMin", "dataMax"]} // Dynamically adjust the X axis domain to fit the data
             padding={{ left: 0, right: 0 }}
-            tickFormatter={(timestamp) => {
-              const date = new Date(timestamp);
-              return date.toLocaleString("pl-PL", {
-                weekday: "short", // Show weekday (e.g., Monday)
-                hour: "2-digit",
-                minute: "2-digit",
-              });
-            }}
+            scale="time"
+            tickFormatter={formatDate} // Używamy funkcji formatDate, by wyświetlić datę i godzinę
           />
           <YAxis domain={[0, 50]} />
-          <Tooltip />
+          <Tooltip
+            labelFormatter={formatDate} // Używamy funkcji formatDate, by sformatować datę w tooltipie
+            formatter={(value) => `${value.toFixed(2)} °C`} // Temperatura do dwóch miejsc po przecinku
+          />
           <Line
             type="monotone"
             dataKey="temperature"
